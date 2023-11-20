@@ -2,8 +2,13 @@ import { Action } from "../types";
 import {
   COUNTER_KEY,
   CounterPartialState,
+  CounterState,
   counterReducer,
 } from "./counterSlice/counterReducer";
+
+export interface GlobalState {
+  [COUNTER_KEY]: CounterState;
+}
 
 export type UnaryFunction<T, R> = (value: T) => R;
 
@@ -67,4 +72,4 @@ export const reducers = {
   [COUNTER_KEY]: counterReducer,
 };
 
-export const store = new Store<CounterPartialState>(reducers);
+export const store = new Store<GlobalState>(reducers);
