@@ -1,36 +1,70 @@
 import { Action } from "../types";
-import { COUNTER_KEY, CounterState } from "./counterSlice/counterReducer";
+import {
+  COUNTER_KEY,
+  CounterPartialState,
+  counterReducer,
+} from "./counterSlice/counterReducer";
 
-interface GlobalState {
-    [COUNTER_KEY]: CounterState
+export type UnaryFunction<T, R> = (value: T) => R;
+
+export type Reducer<TState, TInput> = (state: TState, input: TInput) => TState;
+
+export type ReducerDictionary<
+  TState extends Record<K, unknown>,
+  K extends string | number | symbol = keyof TState
+> = Record<K, Reducer<TState[K], Action>>;
+
+export class Store<
+  TState extends Record<K, unknown>,
+  K extends string | number | symbol = keyof TState
+> {
+  private state: TState;
+  private reducers: ReducerDictionary<TState>;
+  private listeners = new Set<UnaryFunction<TState, void>>();
+
+  constructor(
+    reducers: ReducerDictionary<TState>,
+    initialState: TState = {} as TState
+  ) {
+    this.reducers = reducers;
+    this.state = this.reduce(initialState, {
+      type: "none",
+    });
+  }
+
+  get value(): TState {
+    return this.state;
+  }
+
+  dispatch(action: Action): void {
+    this.state = this.reduce(this.state, action);
+    this.listeners.forEach((fn) => fn(this.state));
+  }
+
+  private reduce(state: TState, action: Action): TState {
+    const result = Object.entries(this.reducers).reduce(
+      (state, [key, reducer]: any) => ({
+        ...state,
+        [key]: reducer((state as any)[key], action),
+      }),
+      state
+    );
+
+    return result;
+  }
+
+  subscribe(fn: (state: TState) => void) {
+    fn(this.state);
+    this.listeners.add(fn);
+
+    return () => {
+      this.listeners.delete(fn);
+    };
+  }
 }
 
-export class Store {
-    private state: GlobalState
-    private reducers: {[key: string]: Function}
+export const reducers = {
+  [COUNTER_KEY]: counterReducer,
+};
 
-    constructor(reducers: {[key: string]: Function} = {}) {
-        this.reducers = reducers
-        this.state = this.reduce(this.state, {type: ''})
-    }
-
-    
-    public get value() {
-        return this.state
-    }
-    
-
-   public dispatch(action: Action) {
-        this.state = this.reduce(this.state, action)
-    }
-
-    private reduce(state: {[key: string]: any}, action: Action) {
-        let newState = {...this.value}
-        for (const prop in this.reducers) {
-            newState[prop as keyof GlobalState] =  this.reducers[prop](state[prop], action)
-        }   
-        return newState
-      }
-
-    public subscribe() {}
-}
+export const store = new Store<CounterPartialState>(reducers);
