@@ -1,9 +1,9 @@
-import { Action } from "../../types"
+import { Action } from '../../types';
 
-export const COUNTER_KEY = 'counter'
+export const COUNTER_KEY = 'counter';
 
 export interface CounterState {
-    value: number
+  value: number;
 }
 
 export interface CounterPartialState {
@@ -15,19 +15,22 @@ export const counterInitialState: CounterState = {
 };
 
 export const counterReducer = (
-  state = counterInitialState,
+  state: CounterState = counterInitialState,
   action: Action
 ): CounterState => {
   switch (action.type) {
-    case "INCREASE":
+    case 'INCREASE':
       return { ...state, value: state.value + 1 };
-    case "DECREASE":
+    case 'DECREASE':
       return { ...state, value: state.value - 1 };
     default:
       return state;
   }
 };
 
-export const selectCounterState = (globalState: CounterPartialState): CounterState => globalState[COUNTER_KEY]
+export const selectCounterState = (
+  globalState: CounterPartialState
+): CounterState => globalState[COUNTER_KEY];
 
-export const selectCounterValue = (globalState: CounterPartialState): number => selectCounterState(globalState).value
+export const selectCounterValue = (globalState: CounterPartialState): number =>
+  selectCounterState(globalState).value;

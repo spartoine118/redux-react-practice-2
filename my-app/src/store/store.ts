@@ -6,9 +6,9 @@
 //   counterReducer,
 // } from "./counterSlice/counterReducer";
 
-// export interface GlobalState {
-//   [COUNTER_KEY]: CounterState;
-// }
+// // export interface GlobalState {
+// //   [COUNTER_KEY]: CounterState;
+// // }
 
 // export type UnaryFunction<T, R> = (value: T) => R;
 
@@ -73,3 +73,5 @@
 // };
 
 // export const store = new Store<GlobalState>(reducers);
+
+export {}
